@@ -1,0 +1,17 @@
+# Dossier contenant les fichiers compilés Python
+__pycache__/
+
+# Fichiers Python compilés
+*.pyc
+
+# Fichiers audio générés par Kokoro
+*.wav
+
+# Fichier des variables d'environnement
+.env
+
+# Environnement virtuel Python
+venv/
+
+# Sauvegardes automatiques des notebooks Jupyter
+.ipynb_checkpoints/
