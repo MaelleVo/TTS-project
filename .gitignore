@@ -12,6 +12,3 @@ __pycache__/
 
 # Environnement virtuel Python
 venv/
-
-# Sauvegardes automatiques des notebooks Jupyter
-.ipynb_checkpoints/
