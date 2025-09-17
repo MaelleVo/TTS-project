@@ -1,14 +1,20 @@
-# Dossier contenant les fichiers compilés Python
+# Backend (Python/FastAPI)
 __pycache__/
-
-# Fichiers Python compilés
 *.pyc
-
-# Fichiers audio générés par Kokoro
 *.wav
-
-# Fichier des variables d'environnement
 .env
-
-# Environnement virtuel Python
 venv/
+backend/audio/
+
+# Frontend (React/Vite)
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
+frontend/.env
+
+# Système/Fichiers inutiles
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea

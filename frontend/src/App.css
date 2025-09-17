@@ -1,42 +1,147 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+/* ALL ELEMENT */
+
+* {
   text-align: center;
+  box-sizing: border-box;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+*::-webkit-scrollbar {
+  display: none;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  color: white;
+  background-color: #1f1f1f;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.container {
+  width: 1280px;
+  margin: 0 auto;
 }
 
-.card {
-  padding: 2em;
+section {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 }
 
-.read-the-docs {
-  color: #888;
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+}
+
+.none {
+  display: none;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+/* HEADER */
+
+header {
+  height: 100px;
+  /* background-color: #141414; */
+  border: solid 1px #5170ff;
+  display: flex;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+/* NAVBAR */
+
+/* HOME PAGE */
+
+.text-home {
+  width: 60%;
+  height: 200px;
+  background-color: #2c2c2c;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 16px;
+  padding: 10px;
+  resize: none;
+}
+
+.button-sent {
+  width: 150px;
+  height: 40px;
+  background-color: #5170ff;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.button-sent:hover {
+  transform: scale(1.05); /* Grossit de 20% au survol */
+}
+
+.button-sent:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.audio-container {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  margin-top: 20px;
+  background: transparent;
+}
+
+audio {
+  flex-grow: 1;
+  height: 40px;
+}
+
+.download-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #5170ff;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  transition: transform 0.3s ease; /* Animation fluide pour le zoom */
+}
+
+.download-button:hover {
+  transform: scale(1.2); /* Grossit de 20% au survol */
+}
+
+.download-button svg {
+  background: transparent;
+}
+
+/* LOGIN PAGE */
+
+/* REGISTER PAGE */
+
+/* FOOTER */
+
+footer {
+  height: 100px;
+  background-color: #141414;
+  border: solid 1px #5170ff;
+  position: sticky;
+  bottom: 0;
+  z-index: 30;
 }
