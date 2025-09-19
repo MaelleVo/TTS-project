@@ -1,10 +1,14 @@
 # Backend (Python/FastAPI)
 __pycache__/
 *.pyc
+*.pyo
 *.wav
 .env
+.env.local
 venv/
+env/
 backend/audio/
+backend/__pycache__/
 
 # Frontend (React/Vite)
 frontend/node_modules/
@@ -12,9 +16,21 @@ frontend/dist/
 frontend/dist-ssr/
 frontend/*.local
 frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
 
 # Système/Fichiers inutiles
 .DS_Store
-.vscode/*
+.DS_Store?
+Thumbs.db
+
+# Editor directories
+.vscode/
 !.vscode/extensions.json
-.idea
+.idea/

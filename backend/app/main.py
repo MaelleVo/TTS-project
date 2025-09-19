@@ -12,7 +12,7 @@ app = FastAPI()
 # Configuration CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Frontend React
+    allow_origins=["*"],  # Frontend React
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -36,24 +36,28 @@ async def home():
     return {"Home Page"}
 
 class SentenceRequest(BaseModel):
-    text: str = Field(description="Votre texte ne peut dépasser pas 400 caractères par requête.", max_length=400)
+    text: str = Field(description="Votre texte ne peut dépasser pas 200 caractères par requête.", max_length=200)
+    lang: str = Field(default="fr", description="Langue du TTS : fr, en, jp, es, it")
+    voice: str = Field(default=None, description="Voix spécifique pour la langue choisie")
 
 @app.post("/tts")
 async def generate_tts(request: SentenceRequest):
     texte = request.text.strip()
+    lang = request.lang
+    voice = request.voice
 
-    logging.info(f"Nouvelle requête TTS reçue : '{texte}'")
+    logging.info(f"Nouvelle requête TTS reçue : '{texte}' | Langue: {lang} | Voix: {voice}")
 
     if not texte:
         logging.warning("Texte vide reçu")
         raise HTTPException(status_code=400, detail="Le texte ne peut pas être vide.")
 
-    if len(texte) > 400:
+    if len(texte) > 200:
         logging.warning(f"Texte trop long reçu ({len(texte)} caractères)")
-        raise HTTPException(status_code=400, detail="Texte trop long, maximum 400 caractères")
+        raise HTTPException(status_code=400, detail="Texte trop long, maximum 200 caractères")
 
     try:
-        audio_path = generate_audio(texte)
+        audio_path = generate_audio(texte, lang=lang, voice=voice)
     except Exception as e:
         logging.error(f"Erreur lors de la génération audio pour le texte '{texte}': {str(e)}")
         raise HTTPException(status_code=500, detail=f"Erreur lors de la génération audio : {str(e)}")
@@ -68,8 +72,8 @@ async def generate_tts(request: SentenceRequest):
         "message": "Synthèse réussie",
         "data": {
             "received_text": texte,
-            "audio_url": audio_url,  # Pour le lecteur audio
-            "download_url": download_url  # Pour le téléchargement
+            "audio_url": audio_url,  
+            "download_url": download_url  
         }
     }
 
