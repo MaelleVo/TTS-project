@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 import os
 import logging
-from scripts.tts_kokoro import generate_audio
+from app.scripts.tts_kokoro import generate_audio
 
 app = FastAPI()
 
