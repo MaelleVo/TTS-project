@@ -1,16 +1,21 @@
+# ----------------------
 # Backend (Python/FastAPI)
+# ----------------------
 __pycache__/
 *.pyc
 *.pyo
-*.wav
+*.wav               
 .env
 .env.local
 venv/
 env/
-backend/audio/
+backend/audio/*     
+!backend/audio/.gitkeep  
 backend/__pycache__/
 
+# ----------------------
 # Frontend (React/Vite)
+# ----------------------
 frontend/node_modules/
 frontend/dist/
 frontend/dist-ssr/
@@ -19,18 +24,24 @@ frontend/.env
 frontend/.env.local
 frontend/.env.*.local
 
+# ----------------------
 # Logs
+# ----------------------
 *.log
 npm-debug.log*
 yarn-debug.log*
 pnpm-debug.log*
 
-# Système/Fichiers inutiles
+# ----------------------
+# Système / fichiers inutiles
+# ----------------------
 .DS_Store
 .DS_Store?
 Thumbs.db
 
-# Editor directories
+# ----------------------
+# Éditeurs / IDE
+# ----------------------
 .vscode/
 !.vscode/extensions.json
 .idea/

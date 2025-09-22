@@ -6,6 +6,7 @@ from fastapi.responses import FileResponse
 import os
 import logging
 from app.scripts.tts_kokoro import generate_audio
+import asyncio
 
 app = FastAPI()
 
@@ -30,10 +31,6 @@ if not os.path.exists("audio"):
 
 # Servir le dossier audio en statique
 app.mount("/audio", StaticFiles(directory="audio"), name="audio")
-
-@app.get("/")
-async def home():
-    return {"Home Page"}
 
 class SentenceRequest(BaseModel):
     text: str = Field(description="Votre texte ne peut dépasser pas 200 caractères par requête.", max_length=200)
@@ -67,13 +64,16 @@ async def generate_tts(request: SentenceRequest):
     audio_url = f"/audio/{filename}"
     download_url = f"/download/{filename}"
 
+    # Supprimer le fichier après 1 minute
+    asyncio.create_task(delete_after_delay(audio_path, delay=60))
+
     response = {
         "success": True,
         "message": "Synthèse réussie",
         "data": {
             "received_text": texte,
-            "audio_url": audio_url,  
-            "download_url": download_url  
+            "audio_url": audio_url,
+            "download_url": download_url
         }
     }
 
@@ -92,3 +92,13 @@ async def download_file(filename: str):
         filename=filename,
         headers={"Content-Disposition": f"attachment; filename={filename}"}
     )
+
+# Fonction pour supprimer le fichier après un délai
+async def delete_after_delay(path: str, delay: int = 60):
+    await asyncio.sleep(delay)
+    if os.path.exists(path):
+        try:
+            os.remove(path)
+            logging.info(f"Fichier supprimé automatiquement : {path}")
+        except Exception as e:
+            logging.error(f"Erreur lors de la suppression du fichier {path} : {e}")
