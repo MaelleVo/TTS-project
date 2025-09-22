@@ -1,3 +1,5 @@
+-f https://download.pytorch.org/whl/cpu/torch_stable.html
+torch==2.8.0+cpu
 fastapi
 uvicorn[standard]
 pydantic
