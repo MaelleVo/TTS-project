@@ -1,104 +1,54 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-import os
 import logging
-from app.scripts.tts_kokoro import generate_audio
-import asyncio
+from app.scripts.tts_kokoro import text_to_speech
 
+# Configurer les logs
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Initialiser FastAPI
 app = FastAPI()
 
-# Configuration CORS
+# Configurer CORS pour Vercel
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Frontend React
+    allow_origins=["https://frontend-global-beryl.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Configuration des logs
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
-)
+# Endpoint de santé
+@app.get("/health")
+async def health():
+    return {"status": "OK", "message": "Serveur TTS prêt"}
 
-# Créer le dossier audio s'il n'existe pas
-if not os.path.exists("audio"):
-    os.makedirs("audio")
-
-# Servir le dossier audio en statique
-app.mount("/audio", StaticFiles(directory="audio"), name="audio")
-
+# Modèle pour la requête TTS
 class SentenceRequest(BaseModel):
-    text: str = Field(description="Votre texte ne peut dépasser pas 200 caractères par requête.", max_length=200)
-    lang: str = Field(default="fr", description="Langue du TTS : fr, en, jp, es, it")
-    voice: str = Field(default=None, description="Voix spécifique pour la langue choisie")
+    text: str = Field(..., max_length=200, description="Texte à transformer en audio")
+    lang: str = Field(default="fr")
+    voice: str = Field(default=None)
 
+# Endpoint pour TTS
 @app.post("/tts")
-async def generate_tts(request: SentenceRequest):
-    texte = request.text.strip()
-    lang = request.lang
-    voice = request.voice
+async def tts(request_data: SentenceRequest):
+    text = request_data.text.strip()
+    lang = request_data.lang
+    voice = request_data.voice
 
-    logging.info(f"Nouvelle requête TTS reçue : '{texte}' | Langue: {lang} | Voix: {voice}")
-
-    if not texte:
-        logging.warning("Texte vide reçu")
-        raise HTTPException(status_code=400, detail="Le texte ne peut pas être vide.")
-
-    if len(texte) > 200:
-        logging.warning(f"Texte trop long reçu ({len(texte)} caractères)")
-        raise HTTPException(status_code=400, detail="Texte trop long, maximum 200 caractères")
+    if not text:
+        raise HTTPException(status_code=400, detail="Texte requis")
+    if len(text) > 200:
+        raise HTTPException(status_code=400, detail="Texte trop long, max 200 caractères")
 
     try:
-        audio_path = generate_audio(texte, lang=lang, voice=voice)
+        logger.info(f"Requête TTS reçue : {text[:50]}... | Langue: {lang} | Voix: {voice}")
+        audio_buffer = text_to_speech(text, lang=lang, voice=voice)
+        logger.info("Audio généré")
+        return StreamingResponse(audio_buffer, media_type="audio/wav")
     except Exception as e:
-        logging.error(f"Erreur lors de la génération audio pour le texte '{texte}': {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Erreur lors de la génération audio : {str(e)}")
-
-    filename = os.path.basename(audio_path)
-    logging.info(f"Audio généré avec succès : {filename}")
-    audio_url = f"/audio/{filename}"
-    download_url = f"/download/{filename}"
-
-    # Supprimer le fichier après 1 minute
-    asyncio.create_task(delete_after_delay(audio_path, delay=60))
-
-    response = {
-        "success": True,
-        "message": "Synthèse réussie",
-        "data": {
-            "received_text": texte,
-            "audio_url": audio_url,
-            "download_url": download_url
-        }
-    }
-
-    return response
-
-@app.get("/download/{filename}")
-async def download_file(filename: str):
-    file_path = os.path.join("audio", filename)
-    if not os.path.exists(file_path):
-        logging.warning(f"Fichier non trouvé : {file_path}")
-        raise HTTPException(status_code=404, detail="Fichier non trouvé")
-    
-    logging.info(f"Téléchargement du fichier : {filename}")
-    return FileResponse(
-        path=file_path,
-        filename=filename,
-        headers={"Content-Disposition": f"attachment; filename={filename}"}
-    )
-
-# Fonction pour supprimer le fichier après un délai
-async def delete_after_delay(path: str, delay: int = 60):
-    await asyncio.sleep(delay)
-    if os.path.exists(path):
-        try:
-            os.remove(path)
-            logging.info(f"Fichier supprimé automatiquement : {path}")
-        except Exception as e:
-            logging.error(f"Erreur lors de la suppression du fichier {path} : {e}")
+        logger.error(f"Erreur TTS : {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Erreur : {str(e)}")
